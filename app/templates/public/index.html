@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='css/uikit.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='css/home.css') }}">
+    <link type="text/css" rel="shortcut icon" href="https:urianviera.com/img/icons/favicon-32x32.png"/>
+    <title>Eliminar multiples registros con Python y MySQL</title>
+</head>
+<body>
+    
+    <div class="uk-container mt50">
+        
+            <h3 class="uk-align-center center m-title">Eliminar mútiples registros con Python</h3>
+            <a href="#" id="borrar" class="uk-button uk-button-primary uk-icon-link" uk-icon="trash">
+                Eliminar
+            </a>
+
+            {% if (miData) %}
+            <h4>Tota de Paise {{ total }}</h4>
+            <table class="uk-table uk-table-hover uk-table-divider">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>País</th>
+                        <th>ISO País</th>
+                        <th>Código País</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in miData %}
+                        <tr id="id{{ data.ID }}">
+                                <td> 
+                                    {{ data.ID }}
+                                    <input type="checkbox" name="idCheckbox" value="{{ data.ID }}" class="uk-checkbox"> 
+                                </td>
+                            <td>{{ data.name }}</td>
+                            <td>{{ data.iso }}</td>
+                            <td>{{ data.phonecode }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        
+            {% else %}
+                <p>No hay Datos </p>
+        {% endif %}
+           
+        </div>
+    </div>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename = 'js/uikit.min.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'js/uikit-icons.min.js') }}"></script>
+    <script>
+        btnEliminar = document.querySelector('#borrar'); //Selecciono el boton con el id borrar
+        btnEliminar.addEventListener('click', recibeCheckbox); //accion al hacer click en el boton
+
+        function recibeCheckbox(){
+            let miIds = '';
+            let coma = '';
+            $("input:checkbox[name='idCheckbox']:checked").each(function() {
+                miIds = miIds + coma + this.value;
+                coma = ',';			
+            });	
+            //console.log(miIds)
+
+        if(miIds.length > 0) {
+            $.ajax({
+				type: "POST",
+				url: "{{ url_for('eliminarSeleccionPais') }}",
+				data: JSON.stringify({'idCheckbox': miIds}),
+                contentType: 'application/json;charset=UTF-8',
+				dataType: "json",
+				cache: false,
+				success: function(data) {
+                    console.log(data)
+                    let resultado = data.resp;
+                    if(resultado == 1){
+                        listIds = data.ids
+                        console.log(listIds)
+                        //recorro todo los ids seleccionados
+                        $.each(listIds,function(indice,id) {
+                            //console.log('Indice es ' + indice + ' y id es: ' + id);
+                            fila = $("#id" + id).remove(); //Oculto las filas eliminadas
+                        });
+                    }else{
+                        console.log('La operación fallo');
+                    }
+				}
+			});
+            } else {
+                console.log('No hay nada seleccionado')
+            }
+        }    
+   
+    </script>
+</body>
+</html>
