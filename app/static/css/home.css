@@ -9,3 +9,10 @@
 .mt50{
     margin-top: 50px;
 }
+.checkbox{
+
+    padding: 10px;
+    color: #555;
+    margin-right: 10px;
+    border: 1px solid #e5e5e5 !important;
+}

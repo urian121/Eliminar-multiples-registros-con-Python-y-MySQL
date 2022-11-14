@@ -5,19 +5,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename ='css/uikit.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename ='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename ='css/custom_alert.css') }}">
     <link type="text/css" rel="shortcut icon" href="https:urianviera.com/img/icons/favicon-32x32.png"/>
     <title>Eliminar multiples registros con Python y MySQL</title>
 </head>
 <body>
     
+    {% 
+        include 'public/alertas.html' 
+    %}
+
     <div class="uk-container mt50">
         
             <h3 class="uk-align-center center m-title">Eliminar mútiples registros con Python</h3>
-            <a href="#" id="borrar" class="uk-button uk-button-primary uk-icon-link" uk-icon="trash">
-                Eliminar
-            </a>
 
+            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                <label class="checkbox">
+                    <input class="uk-checkbox" type="checkbox" onclick="marcarInputs(this);">
+                    Marcar Todos
+                </label>
+
+                <label class="checkbox" id="totalSeleccionados">
+                    Total Marcados
+                </label>
+
+                <a href="#" id="borrar" class="uk-button uk-button-primary uk-icon-link" uk-icon="trash">
+                    Eliminar
+                </a>
+    
+            </div>
+    
+           
             {% if (miData) %}
             <h4>Tota de Paise {{ total }}</h4>
             <table class="uk-table uk-table-hover uk-table-divider">
@@ -56,10 +76,33 @@
     <script src="{{ url_for('static', filename = 'js/uikit.min.js') }}"></script>
     <script src="{{ url_for('static', filename = 'js/uikit-icons.min.js') }}"></script>
     <script>
+        
+        function marcarInputs(data){
+            listaCheckboxes = document.getElementsByTagName('input'); 
+            for(i=0;i<listaCheckboxes.length;i++){
+                if(listaCheckboxes[i].type == "checkbox"){
+                    listaCheckboxes[i].checked = data.checked; 
+                }
+            }
+
+            total_Checkbox_Seleccionados(); //Llamado la funcion
+        }
+
+
+        function total_Checkbox_Seleccionados(){
+            //let total_Checkbox_Seleccionados = $("input:checkbox[name='idCheckbox']").length;
+            let total_Checkbox_Seleccionados = $("input:checkbox[name='idCheckbox']:checked").length;
+            let total = document.querySelector('#totalSeleccionados').innerHTML =`
+            Total Marcados ${total_Checkbox_Seleccionados}`
+        }
+
         btnEliminar = document.querySelector('#borrar'); //Selecciono el boton con el id borrar
         btnEliminar.addEventListener('click', recibeCheckbox); //accion al hacer click en el boton
 
         function recibeCheckbox(){
+
+            total_Checkbox_Seleccionados(); //Llamado la funcion
+
             let miIds = '';
             let coma = '';
             $("input:checkbox[name='idCheckbox']:checked").each(function() {
@@ -81,7 +124,10 @@
                     let resultado = data.resp;
                     if(resultado == 1){
                         listIds = data.ids
-                        console.log(listIds)
+                        console.log(listIds);
+
+                        mensaje(); //Llamando a la funcion mensaje
+
                         //recorro todo los ids seleccionados
                         $.each(listIds,function(indice,id) {
                             //console.log('Indice es ' + indice + ' y id es: ' + id);
@@ -97,6 +143,30 @@
             }
         }    
    
+
+
+
+        /** Alerta personalizadas */
+    function mensaje() {
+        let text = document.querySelector('.text-2').textContent = `
+                La Operación fue un éxito 😀 `;
+
+        const toast = document.querySelector(".toast");
+            closeIcon = document.querySelector(".close"),
+            progress = document.querySelector(".progress");
+
+
+        toast.classList.add("active");
+        progress.classList.add("active");
+
+        setTimeout(() => {
+            toast.classList.remove("active");
+        }, 5000);
+
+        closeIcon.addEventListener("click", () => {
+            toast.classList.remove("active");
+        });
+    }
     </script>
 </body>
 </html>
