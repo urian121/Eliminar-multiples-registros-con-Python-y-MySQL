@@ -27,10 +27,6 @@
                     Marcar Todos
                 </label>
 
-                <label class="checkbox" id="totalSeleccionados">
-                    Total Marcados
-                </label>
-
                 <a href="#" id="borrar" class="uk-button uk-button-primary uk-icon-link" uk-icon="trash">
                     Eliminar
                 </a>
@@ -39,7 +35,7 @@
     
            
             {% if (miData) %}
-            <h4>Tota de Paise {{ total }}</h4>
+            <h4 class="uk-align-center center m-title">Tota de Paise {{ total }}</h4>
             <table class="uk-table uk-table-hover uk-table-divider">
                 <thead>
                     <tr>
@@ -84,16 +80,6 @@
                     listaCheckboxes[i].checked = data.checked; 
                 }
             }
-
-            total_Checkbox_Seleccionados(); //Llamado la funcion
-        }
-
-
-        function total_Checkbox_Seleccionados(){
-            //let total_Checkbox_Seleccionados = $("input:checkbox[name='idCheckbox']").length;
-            let total_Checkbox_Seleccionados = $("input:checkbox[name='idCheckbox']:checked").length;
-            let total = document.querySelector('#totalSeleccionados').innerHTML =`
-            Total Marcados ${total_Checkbox_Seleccionados}`
         }
 
         btnEliminar = document.querySelector('#borrar'); //Selecciono el boton con el id borrar
@@ -101,15 +87,13 @@
 
         function recibeCheckbox(){
 
-            total_Checkbox_Seleccionados(); //Llamado la funcion
-
             let miIds = '';
             let coma = '';
             $("input:checkbox[name='idCheckbox']:checked").each(function() {
                 miIds = miIds + coma + this.value;
                 coma = ',';			
             });	
-            //console.log(miIds)
+            console.log(miIds)
 
         if(miIds.length > 0) {
             $.ajax({
@@ -121,35 +105,43 @@
 				cache: false,
 				success: function(data) {
                     console.log(data)
-                    let resultado = data.resp;
-                    if(resultado == 1){
-                        listIds = data.ids
-                        console.log(listIds);
+                    if(data.resp == 1){
 
-                        mensaje(); //Llamando a la funcion mensaje
+                        if(data.totalIds !=1){
+                            listIds = data.ids
+                            console.log(listIds);
 
-                        //recorro todo los ids seleccionados
-                        $.each(listIds,function(indice,id) {
-                            //console.log('Indice es ' + indice + ' y id es: ' + id);
-                            fila = $("#id" + id).remove(); //Oculto las filas eliminadas
-                        });
+                            //recorro todo los ids seleccionados
+                            $.each(listIds,function(indice,id) {
+                                //console.log('Indice es ' + indice + ' y id es: ' + id);
+                                fila = $("#id" + id).remove(); //Oculto las filas eliminadas
+                            });
+                        }else{
+                            fila = $("#id" + data.ids).remove(); 
+                        }
+                        mensaje('La Operación fue un éxito 😀', 1); //Llamando a la funcion mensaje
+                        
                     }else{
                         console.log('La operación fallo');
                     }
 				}
 			});
             } else {
-                console.log('No hay nada seleccionado')
+                mensaje('Debe seleccionar algún registro ⚠️',0)
             }
         }    
    
 
 
 
-        /** Alerta personalizadas */
-    function mensaje() {
-        let text = document.querySelector('.text-2').textContent = `
-                La Operación fue un éxito 😀 `;
+    /** Alerta personalizadas */
+    function mensaje(msj='', tipo='') {
+       
+        let text = document.querySelector('.text-2').textContent = `${msj}`;
+        if(tipo =='0'){
+            let text1 = document.querySelector('.text-1').textContent = `Error`;
+        }
+        
 
         const toast = document.querySelector(".toast");
             closeIcon = document.querySelector(".close"),
